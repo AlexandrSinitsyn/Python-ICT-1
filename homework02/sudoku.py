@@ -2,10 +2,11 @@ import math
 import pathlib
 from tokenize import group
 import typing as tp
+from math import sqrt
 
 max_number = 9
 
-count_in_block = 3
+count_in_block = int(sqrt(max_number))
 
 
 def create_grid(puzzle: str) -> tp.List[tp.List[str]]:
@@ -17,7 +18,6 @@ def create_grid(puzzle: str) -> tp.List[tp.List[str]]:
         max_number += 1
 
     count_in_block = int(math.sqrt(max_number))
-
 
     digits = [c for c in puzzle if c in ([str(i) for i in range(1, max_number + 1)] + ["."])]
     grid = group(digits, max_number)
@@ -118,28 +118,33 @@ def solve(grid: tp.List[tp.List[str]]) -> tp.Optional[tp.List[tp.List[str]]]:
             откатить Действие назад
     """
 
-    empty_position = find_empty_positions(grid)
+    """
+    i, j = find_empty_positions(grid)
 
-    while empty_position != (-1, -1):
-        for v in find_possible_values(grid, empty_position):
-            saved_grid = grid
+    if i == -1:
+        return True
+    for e in range(1, 10):
+        if isValid(grid, i, j, e):
+            grid[i][j] = e
+            if solve(grid, i, j):
+                return True
+            # Undo the current cell for backtracking
+            grid[i][j] = 0
+    return False"""
 
-            grid[empty_position[0]][empty_position[1]] = v
+    def check(matrix):
+        pos = find_empty_positions(matrix)
+        if pos == (-1, -1):
+            return matrix, True
+        else:
+            for e in find_possible_values(matrix, pos):
+                matrix[pos[0]][pos[1]] = e
+                if check(matrix):
+                    return matrix, True
+                matrix[pos[0]][pos[1]] = "."
+            return None, False
 
-            grid = solve(grid)
-
-            if grid is None:
-                grid = saved_grid
-                continue
-
-            if check_solution(grid):
-                return grid
-            else:
-                return None
-
-        empty_position = find_empty_positions(grid)
-
-    return grid
+    return check(grid)[0]
 
 
 def find_empty_positions(grid: tp.List[tp.List[str]]) -> tp.Optional[tp.Tuple[int, int]]:
@@ -193,6 +198,8 @@ def check_solution(solution: tp.List[tp.List[str]]) -> bool:
 
 
 tab_count = 5
+
+
 def display(grid):
     tab = ""
     for i in range(tab_count):
@@ -206,6 +213,7 @@ def display(grid):
             if (e + 1) % count_in_block == 0 and (e + 1) != len(grid[row]):
                 print("|", end=" ")
         print()
+
         if (row + 1) % count_in_block == 0 and (row + 1) != len(grid):
             print(tab, end="")
             for i in range(count_in_block):
@@ -216,7 +224,10 @@ def display(grid):
                 else:
                     print()
 
+
 full_length = 0
+
+
 def separator():
     global full_length
 
@@ -234,7 +245,7 @@ def separator():
         full_length += 1
     print()
 
-"""
+
 print()
 sudoku = read_sudoku('puzzle1.txt')
 display(sudoku)
@@ -242,10 +253,10 @@ display(sudoku)
 print()
 separator()
 
-for i in range((full_length - len("SOLVING")) // 2 + 1):
+for _ in range((full_length - len("SOLVING")) // 2 + 1):
     print(" ", end="")
 print("SOLVING", end="")
-for i in range((full_length - len("SOLVING")) // 2):
+for _ in range((full_length - len("SOLVING")) // 2):
     print(" ", end="")
 print()
 
@@ -260,5 +271,5 @@ else:
     print("Your sudoku can not be solved!")
 
 print()
-"""
+
 
