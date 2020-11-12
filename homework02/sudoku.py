@@ -188,15 +188,14 @@ def solve(grid: tp.List[tp.List[str]]) -> tp.Optional[tp.List[tp.List[str]]]:
 
 def check_solution(solution: tp.List[tp.List[str]]) -> bool:
     """ Если решение solution верно, то вернуть True, в противном случае False """
-    col_indices = [i for i in range(count_in_block)]
-    row_indices = [i * count_in_block for i in range(count_in_block)]
-    positions = [(i, j) for i in col_indices for j in row_indices]
+    positions = [(i, j) for i in range(max_number) for j in range(max_number)]
 
+    dot = {'.'}
     passed = []
-    for i in positions:
-        passed.append(len(set(get_block(solution, i))) == max_number)
-        passed.append(len(set(get_row(solution, i))) == max_number)
-        passed.append(len(set(get_col(solution, i))) == max_number)
+    for pos in positions:
+        passed.append(len(set(get_block(solution, pos)) - dot) == max_number)
+        passed.append(len(set(get_row(solution, pos)) - dot) == max_number)
+        passed.append(len(set(get_col(solution, pos)) - dot) == max_number)
     return all(passed)
 
 
